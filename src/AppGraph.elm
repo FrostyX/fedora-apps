@@ -1,7 +1,7 @@
 -- module ForceDirectedGraphWithZoom exposing (main)
 
 
-module Main exposing (..)
+module AppGraph exposing (..)
 
 import Browser
 import Browser.Dom as Dom
