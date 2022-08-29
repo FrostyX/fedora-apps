@@ -42,10 +42,7 @@ edgeColor =
 
 
 type Msg
-    = DragAt ( Float, Float )
-    | DragEnd ( Float, Float )
-    | DragStart NodeId ( Float, Float )
-    | ReceiveElementPosition (Result Dom.Error Dom.Element)
+    = ReceiveElementPosition (Result Dom.Error Dom.Element)
     | Resize Int Int
     | Tick Time.Posix
     | ZoomMsg OnZoom
@@ -61,8 +58,7 @@ type Model
 
 
 type alias ReadyState =
-    { drag : Maybe Drag
-    , graph : Graph Entity ()
+    { graph : Graph Entity ()
     , simulation : Force.State NodeId
     , zoom : Zoom
 
@@ -75,13 +71,6 @@ type alias ReadyState =
     -- `showGraph` is initialized with `False` and set to `True` with the first
     -- `Tick`.
     , showGraph : Bool
-    }
-
-
-type alias Drag =
-    { current : ( Float, Float )
-    , index : NodeId
-    , start : ( Float, Float )
     }
 
 
@@ -144,6 +133,7 @@ initSimulation graph width height =
         [ -- Defines the force that pulls connected nodes together. You can use
           -- `Force.customLinks` if you need to adjust the distance and
           -- strength.
+          -- Force.customLinks 1 <| List.map link <| Graph.edges graph
           Force.links <| List.map link <| Graph.edges graph
 
         -- Defines the force that pushes the nodes apart. The default strength
@@ -196,30 +186,15 @@ a mouse interaction in progress, and that we only subscribe to
 subscriptions : Model -> Sub Msg
 subscriptions model =
     let
-        dragSubscriptions : Sub Msg
-        dragSubscriptions =
-            Sub.batch
-                [ Events.onMouseMove
-                    (Decode.map (.clientPos >> DragAt) Mouse.eventDecoder)
-                , Events.onMouseUp
-                    (Decode.map (.clientPos >> DragEnd) Mouse.eventDecoder)
-                , Events.onAnimationFrame Tick
-                ]
-
         readySubscriptions : ReadyState -> Sub Msg
-        readySubscriptions { drag, simulation, zoom } =
+        readySubscriptions { simulation, zoom } =
             Sub.batch
                 [ Zoom.subscriptions zoom ZoomMsg
-                , case drag of
-                    Nothing ->
-                        if Force.isCompleted simulation then
-                            Sub.none
+                , if Force.isCompleted simulation then
+                    Sub.none
 
-                        else
-                            Events.onAnimationFrame Tick
-
-                    Just _ ->
-                        dragSubscriptions
+                  else
+                    Events.onAnimationFrame Tick
                 ]
     in
     Sub.batch
@@ -246,52 +221,12 @@ update msg model =
         ( Tick _, Init _ ) ->
             ( model, Cmd.none )
 
-        ( DragAt xy, Ready state ) ->
-            handleDragAt xy state
-
-        ( DragAt _, Init _ ) ->
-            ( model, Cmd.none )
-
-        ( DragEnd xy, Ready state ) ->
-            case state.drag of
-                Just { index } ->
-                    ( Ready
-                        { state
-                            | drag = Nothing
-                            , graph = updateNodePosition index xy state
-                        }
-                    , Cmd.none
-                    )
-
-                Nothing ->
-                    ( Ready state, Cmd.none )
-
-        ( DragEnd _, Init _ ) ->
-            ( model, Cmd.none )
-
-        ( DragStart index xy, Ready state ) ->
-            ( Ready
-                { state
-                    | drag =
-                        Just
-                            { start = xy
-                            , current = xy
-                            , index = index
-                            }
-                }
-            , Cmd.none
-            )
-
-        ( DragStart _ _, Init _ ) ->
-            ( model, Cmd.none )
-
         ( ReceiveElementPosition (Ok { element }), Init graph ) ->
             -- When we get the svg element position and dimensions, we are
             -- ready to initialize the simulation and the zoom, but we cannot
             -- show the graph yet. If we did, we would see a noticable jump.
             ( Ready
-                { drag = Nothing
-                , element = element
+                { element = element
                 , graph = graph
                 , showGraph = False
                 , simulation =
@@ -306,8 +241,7 @@ update msg model =
 
         ( ReceiveElementPosition (Ok { element }), Ready state ) ->
             ( Ready
-                { drag = state.drag
-                , element = element
+                { element = element
                 , graph = state.graph
                 , showGraph = True
                 , simulation =
@@ -335,28 +269,6 @@ update msg model =
             ( model, Cmd.none )
 
 
-handleDragAt : ( Float, Float ) -> ReadyState -> ( Model, Cmd Msg )
-handleDragAt xy ({ drag, simulation } as state) =
-    case drag of
-        Just { start, index } ->
-            ( Ready
-                { state
-                    | drag =
-                        Just
-                            { start = start
-                            , current = xy
-                            , index = index
-                            }
-                    , graph = updateNodePosition index xy state
-                    , simulation = Force.reheat simulation
-                }
-            , Cmd.none
-            )
-
-        Nothing ->
-            ( Ready state, Cmd.none )
-
-
 handleTick : ReadyState -> ( Model, Cmd Msg )
 handleTick state =
     let
@@ -365,39 +277,14 @@ handleTick state =
                 List.map .label <|
                     Graph.nodes state.graph
     in
-    case state.drag of
-        Nothing ->
-            ( Ready
-                { state
-                    | graph = updateGraphWithList state.graph list
-                    , showGraph = True
-                    , simulation = newSimulation
-                }
-            , Cmd.none
-            )
-
-        Just { current, index } ->
-            ( Ready
-                { state
-                    | graph =
-                        Graph.update index
-                            (Maybe.map
-                                (updateNode
-                                    (shiftPosition
-                                        state.zoom
-                                        ( state.element.x
-                                        , state.element.y
-                                        )
-                                        current
-                                    )
-                                )
-                            )
-                            (updateGraphWithList state.graph list)
-                    , showGraph = True
-                    , simulation = newSimulation
-                }
-            , Cmd.none
-            )
+    ( Ready
+        { state
+            | graph = updateGraphWithList state.graph list
+            , showGraph = True
+            , simulation = newSimulation
+        }
+    , Cmd.none
+    )
 
 
 updateNode :
@@ -661,7 +548,7 @@ handled in the update function by calling the `shiftPosition` function.
 -}
 onMouseDown : NodeId -> Attribute Msg
 onMouseDown index =
-    Mouse.onDown (.clientPos >> DragStart index)
+    style "background-color" "red"
 
 
 {-| This function returns a command to retrieve the position of the svg element.
