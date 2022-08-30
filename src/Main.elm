@@ -3,10 +3,9 @@ module Main exposing (..)
 import AppGraph
 import Browser
 import Decoders exposing (..)
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
 import Http
 import Models exposing (..)
+import Views exposing (view)
 
 
 main =
@@ -18,8 +17,6 @@ main =
         }
 
 
-type alias Model =
-    Apps
 
 
 subscriptions : Model -> Sub Msg
@@ -32,10 +29,6 @@ init _ =
     ( Apps [], Cmd.batch [ readApps ] )
 
 
-type Msg
-    = Increment
-    | Decrement
-    | GotApps (Result Http.Error Apps)
 
 
 readApps : Cmd Msg
@@ -50,12 +43,6 @@ readApps =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            ( Apps [], Cmd.none )
-
-        Decrement ->
-            ( Apps [], Cmd.none )
-
         GotApps result ->
             let
                 log =
@@ -69,10 +56,6 @@ update msg model =
                     ( model, Cmd.none )
 
 
-view : Model -> Html Msg
-view model =
-    div []
-        [ button [ onClick Decrement ] [ text "-" ]
-        , div [] [ text (String.fromInt 1) ]
-        , button [ onClick Increment ] [ text "+" ]
-        ]
+appSubTrees : Apps -> (List Apps)
+appSubTrees apps =
+    apps :: [apps]
