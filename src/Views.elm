@@ -1,6 +1,32 @@
 module Views exposing (..)
 
-import Html exposing (Html, button, div, h1, h2, h3, p, text)
+import Html
+    exposing
+        ( Html
+        , a
+        , button
+        , div
+        , h1
+        , h2
+        , h3
+        , hr
+        , img
+        , p
+        , text
+        )
+import Html.Attributes
+    exposing
+        ( attribute
+        , class
+        , href
+        , id
+        , name
+        , rel
+        , src
+        , style
+        , value
+        , width
+        )
 import Html.Events exposing (onClick)
 import Models exposing (..)
 
@@ -41,4 +67,14 @@ viewApp app =
     div []
         [ h3 [] [ text app.name ]
         , p [] [ text app.data.description ]
+        , p [] [ a [ href app.data.url ] [ text app.data.url ] ]
+        , p [] [ a [ href app.data.bugs_url ] [ text app.data.bugs_url ] ]
+        , p [] [ a [ href app.data.docs_url ] [ text app.data.docs_url ] ]
+        , viewAppIcon app
+        , hr [] []
         ]
+
+
+viewAppIcon : App -> Html Msg
+viewAppIcon app =
+    img [ src ("/img/icons/" ++ app.data.icon) ] []

@@ -37,3 +37,6 @@ appDataDecoder =
     succeed AppData
         |> required "description" string
         |> optional "url" string ""
+        |> optional "bugs_url" string ""
+        |> optional "docs_url" string ""
+        |> optional "icon" string ""

@@ -21,6 +21,9 @@ type alias App =
 type alias AppData =
     { description : String
     , url : String
+    , bugs_url : String
+    , docs_url : String
+    , icon : String
     }
 
 
