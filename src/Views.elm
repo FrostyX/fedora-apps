@@ -1,5 +1,7 @@
 module Views exposing (..)
 
+import Bootstrap.CDN as CDN
+import Bootstrap.Grid as Grid
 import Html
     exposing
         ( Html
@@ -33,10 +35,15 @@ import Models exposing (..)
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ case model of
-            Apps apps ->
-                div [] (apps |> List.map viewAllApps)
+    Grid.container []
+        [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
+        , Grid.row []
+            [ Grid.col []
+                [ case model of
+                    Apps apps ->
+                        div [] (apps |> List.map viewAllApps)
+                ]
+            ]
         ]
 
 
