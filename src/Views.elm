@@ -66,9 +66,13 @@ viewAllApps app =
 viewAppGroup : App -> Html Msg
 viewAppGroup app =
     div [ class "app-group" ]
-        [ h2 [] [ text app.name ]
-        , p [] (viewAppDescription app)
-        , div []
+        [ div [ class "app-group-header row justify-content-md-center" ]
+            [ div [ class "col col-lg-10" ]
+                [ h2 [] [ text app.name ]
+                , p [] (viewAppDescription app)
+                ]
+            ]
+        , div [ class "app-rows" ]
             (case app.children of
                 Apps apps ->
                     apps
@@ -91,8 +95,7 @@ viewAppRow apps =
 viewApp : App -> Html Msg
 viewApp app =
     div [ class "mb-4" ]
-        [ Card.config
-            [ Card.outlineInfo ]
+        [ Card.config []
             |> Card.imgTop [ src (appIcon app) ] []
             |> Card.block []
                 [ Block.titleH3 [] [ text app.name ]
