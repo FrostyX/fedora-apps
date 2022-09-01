@@ -15,6 +15,7 @@ import Html
         , h3
         , hr
         , img
+        , node
         , p
         , text
         )
@@ -34,6 +35,7 @@ import Html.Attributes
 import Html.Events exposing (onClick)
 import Html.Parser
 import Html.Parser.Util
+import List.Split
 import Models exposing (..)
 
 
@@ -41,12 +43,11 @@ view : Model -> Html Msg
 view model =
     Grid.container []
         [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
-        , Grid.row []
-            [ Grid.col []
-                [ case model of
-                    Apps apps ->
-                        div [] (apps |> List.map viewAllApps)
-                ]
+        , node "link" [ rel "stylesheet", href "/css/style.css" ] []
+        , div [ class "content" ]
+            [ case model of
+                Apps apps ->
+                    div [] (apps |> List.map viewAllApps)
             ]
         ]
 
@@ -64,25 +65,40 @@ viewAllApps app =
 
 viewAppGroup : App -> Html Msg
 viewAppGroup app =
-    div []
+    div [ class "app-group" ]
         [ h2 [] [ text app.name ]
         , p [] (viewAppDescription app)
-        , div [ class "card-deck" ]
+        , div []
             (case app.children of
                 Apps apps ->
-                    apps |> List.map viewApp
+                    apps
+                        |> List.Split.chunksOfLeft 4
+                        |> List.map viewAppRow
             )
+        ]
+
+
+viewAppRow : List App -> Html Msg
+viewAppRow apps =
+    div [ class "row" ]
+        [ div [ class "col-12" ]
+            [ div [ class "card-deck" ]
+                (apps |> List.map viewApp)
+            ]
         ]
 
 
 viewApp : App -> Html Msg
 viewApp app =
-    Card.config [ Card.outlineInfo ]
-        |> Card.imgTop [ src (appIcon app) ] []
-        |> Card.block []
-            [ Block.titleH3 [] [ text app.name ]
-            ]
-        |> Card.view
+    div [ class "mb-4" ]
+        [ Card.config
+            [ Card.outlineInfo ]
+            |> Card.imgTop [ src (appIcon app) ] []
+            |> Card.block []
+                [ Block.titleH3 [] [ text app.name ]
+                ]
+            |> Card.view
+        ]
 
 
 viewAppDetail : App -> Html Msg
