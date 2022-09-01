@@ -17,8 +17,6 @@ main =
         }
 
 
-
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch []
@@ -27,8 +25,6 @@ subscriptions model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( Apps [], Cmd.batch [ readApps ] )
-
-
 
 
 readApps : Cmd Msg
@@ -54,8 +50,3 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
-
-
-appSubTrees : Apps -> (List Apps)
-appSubTrees apps =
-    apps :: [apps]
