@@ -105,7 +105,13 @@ viewAppIcon app =
 
 appIcon : App -> String
 appIcon app =
-    "/img/icons/" ++ app.data.icon
+    "/img/icons/"
+        ++ (if String.isEmpty app.data.icon then
+                "missing.png"
+
+            else
+                app.data.icon
+           )
 
 
 viewAppDescription : App -> List (Html Msg)
