@@ -1,6 +1,8 @@
 module Views exposing (..)
 
 import Bootstrap.CDN as CDN
+import Bootstrap.Card as Card
+import Bootstrap.Card.Block as Block
 import Bootstrap.Grid as Grid
 import Html
     exposing
@@ -65,14 +67,26 @@ viewAppGroup app =
     div []
         [ h2 [] [ text app.name ]
         , p [] (viewAppDescription app)
-        , case app.children of
-            Apps apps ->
-                div [] (apps |> List.map viewApp)
+        , div [ class "card-deck" ]
+            (case app.children of
+                Apps apps ->
+                    apps |> List.map viewApp
+            )
         ]
 
 
 viewApp : App -> Html Msg
 viewApp app =
+    Card.config [ Card.outlineInfo ]
+        |> Card.imgTop [ src (appIcon app) ] []
+        |> Card.block []
+            [ Block.titleH3 [] [ text app.name ]
+            ]
+        |> Card.view
+
+
+viewAppDetail : App -> Html Msg
+viewAppDetail app =
     div []
         [ h3 [] [ text app.name ]
         , p [] (viewAppDescription app)
@@ -86,7 +100,12 @@ viewApp app =
 
 viewAppIcon : App -> Html Msg
 viewAppIcon app =
-    img [ src ("/img/icons/" ++ app.data.icon) ] []
+    img [ src (appIcon app) ] []
+
+
+appIcon : App -> String
+appIcon app =
+    "/img/icons/" ++ app.data.icon
 
 
 viewAppDescription : App -> List (Html Msg)
