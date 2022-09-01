@@ -30,6 +30,8 @@ import Html.Attributes
         , width
         )
 import Html.Events exposing (onClick)
+import Html.Parser
+import Html.Parser.Util
 import Models exposing (..)
 
 
@@ -51,7 +53,7 @@ viewAllApps : App -> Html Msg
 viewAllApps app =
     div []
         [ h1 [] [ text app.name ]
-        , p [] [ text app.data.description ]
+        , p [] (viewAppDescription app)
         , case app.children of
             Apps apps ->
                 div [] (apps |> List.map viewAppGroup)
@@ -62,7 +64,7 @@ viewAppGroup : App -> Html Msg
 viewAppGroup app =
     div []
         [ h2 [] [ text app.name ]
-        , p [] [ text app.data.description ]
+        , p [] (viewAppDescription app)
         , case app.children of
             Apps apps ->
                 div [] (apps |> List.map viewApp)
@@ -73,7 +75,7 @@ viewApp : App -> Html Msg
 viewApp app =
     div []
         [ h3 [] [ text app.name ]
-        , p [] [ text app.data.description ]
+        , p [] (viewAppDescription app)
         , p [] [ a [ href app.data.url ] [ text app.data.url ] ]
         , p [] [ a [ href app.data.bugs_url ] [ text app.data.bugs_url ] ]
         , p [] [ a [ href app.data.docs_url ] [ text app.data.docs_url ] ]
@@ -85,3 +87,13 @@ viewApp app =
 viewAppIcon : App -> Html Msg
 viewAppIcon app =
     img [ src ("/img/icons/" ++ app.data.icon) ] []
+
+
+viewAppDescription : App -> List (Html Msg)
+viewAppDescription app =
+    case Html.Parser.run app.data.description of
+        Ok html ->
+            Html.Parser.Util.toVirtualDom html
+
+        Err err ->
+            [ text (Debug.toString err) ]
