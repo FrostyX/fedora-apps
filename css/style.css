@@ -73,3 +73,8 @@ body {
    padding-right: 20px;
    padding-bottom: 20px;
 }
+
+h4.popover-header img {
+    width: 20px;
+    margin-right: 5px;
+}

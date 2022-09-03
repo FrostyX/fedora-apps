@@ -162,7 +162,12 @@ viewApp model app =
             ]
         )
         |> Popover.top
-        |> Popover.titleH4 [] [ text app.name ]
+        |> Popover.titleH4 []
+            [ div []
+                [ viewAppIcon app
+                , text app.name
+                ]
+            ]
         |> Popover.content []
             (viewAppDescription app)
         |> Popover.view popoverState
