@@ -47,6 +47,7 @@ import Html.Parser
 import Html.Parser.Util
 import List.Split
 import Models exposing (..)
+import Set exposing (Set)
 
 
 view : Model -> Html Msg
@@ -153,29 +154,36 @@ viewApp model app =
             Dict.get app.name model.popoverState
                 |> Maybe.withDefault
                     Popover.initialState
+
+        hidden =
+            Set.member app.name model.hiddenApps
     in
-    Popover.config
-        (div [ class "mb-4" ]
-            [ Card.config
-                [ Card.attrs <| Popover.onHover popoverState (PopoverMsg app)
-                ]
-                |> Card.imgTop [ src (appIcon app) ] []
-                |> Card.block []
-                    [ Block.titleH3 [] [ text app.name ]
+    if hidden then
+        div [] []
+
+    else
+        Popover.config
+            (div [ class "mb-4" ]
+                [ Card.config
+                    [ Card.attrs <| Popover.onHover popoverState (PopoverMsg app)
                     ]
-                |> Card.view
-            ]
-        )
-        |> Popover.top
-        |> Popover.titleH4 []
-            [ div []
-                [ viewAppIcon app
-                , text app.name
+                    |> Card.imgTop [ src (appIcon app) ] []
+                    |> Card.block []
+                        [ Block.titleH3 [] [ text app.name ]
+                        ]
+                    |> Card.view
                 ]
-            ]
-        |> Popover.content []
-            (viewAppDescription app)
-        |> Popover.view popoverState
+            )
+            |> Popover.top
+            |> Popover.titleH4 []
+                [ div []
+                    [ viewAppIcon app
+                    , text app.name
+                    ]
+                ]
+            |> Popover.content []
+                (viewAppDescription app)
+            |> Popover.view popoverState
 
 
 viewAppDetail : App -> Html Msg

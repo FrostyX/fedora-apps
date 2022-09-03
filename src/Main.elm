@@ -8,6 +8,7 @@ import Decoders exposing (..)
 import Dict exposing (Dict)
 import Http
 import Models exposing (..)
+import Set exposing (Set)
 import Views exposing (view)
 
 
@@ -28,6 +29,9 @@ subscriptions model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { apps = Apps []
+      , hiddenApps = Set.empty
+
+      -- , hiddenApps = Set.fromList [ "FedoraPeople", "Fedora Accounts" ]
       , popoverState = Dict.fromList []
       }
     , Cmd.batch [ readApps ]
@@ -68,42 +72,37 @@ update msg model =
 
         Search value ->
             if String.isEmpty value then
-                ( model, Cmd.none )
+                ( { model | hiddenApps = Set.empty }, Cmd.none )
 
             else
                 case model.apps of
                     Apps apps ->
                         case List.head apps of
                             Just app ->
-                                ( { model | apps = Apps [ search value app ] }, Cmd.none )
+                                ( { model
+                                    | hiddenApps =
+                                        appsToList app
+                                            |> List.filter (appFilter value)
+                                            |> Set.fromList
+                                  }
+                                , Cmd.none
+                                )
 
                             Nothing ->
                                 ( { model | apps = model.apps }, Cmd.none )
 
 
-search : String -> App -> App
-search value appRoot =
-    { appRoot
-        | children =
-            case appRoot.children of
-                Apps apps ->
-                    apps
-                        |> List.map
-                            (\app ->
-                                { app
-                                    | children =
-                                        case app.children of
-                                            Apps leafChildren ->
-                                                leafChildren
-                                                    |> List.filter
-                                                        (\x -> x.name == "The Planet")
-                                                    |> Apps
-                                }
-                            )
-                        |> Apps
-    }
+appsToList : App -> List String
+appsToList appRoot =
+    case appRoot.children of
+        Apps apps ->
+            [ appRoot.name ]
+                ++ (apps
+                        |> List.map appsToList
+                        |> List.concat
+                   )
 
 
-
--- inorder : Apps
--- inorder apps =
+appFilter : String -> String -> Bool
+appFilter value name =
+    name /= value
