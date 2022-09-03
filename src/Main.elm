@@ -1,8 +1,11 @@
 module Main exposing (..)
 
 import AppGraph
+import Bootstrap.Popover as Popover
 import Browser
+import Debug
 import Decoders exposing (..)
+import Dict exposing (Dict)
 import Http
 import Models exposing (..)
 import Views exposing (view)
@@ -24,7 +27,11 @@ subscriptions model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Apps [], Cmd.batch [ readApps ] )
+    ( { apps = Apps []
+      , popoverState = Dict.fromList []
+      }
+    , Cmd.batch [ readApps ]
+    )
 
 
 readApps : Cmd Msg
@@ -46,7 +53,15 @@ update msg model =
             in
             case result of
                 Ok apps ->
-                    ( apps, Cmd.none )
+                    ( { model | apps = apps }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
+
+        PopoverMsg app state ->
+            ( { model
+                | popoverState =
+                    Dict.update app.name (\_ -> Just state) model.popoverState
+              }
+            , Cmd.none
+            )

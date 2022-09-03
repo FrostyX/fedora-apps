@@ -21,6 +21,7 @@
             "gampleman/elm-visualization": "2.3.0",
             "hecrj/html-parser": "2.4.0",
             "mpizenberg/elm-pointer-events": "4.0.2",
+            "myrho/elm-hovercard": "2.0.0",
             "rundis/elm-bootstrap": "5.2.0"
         },
         "indirect": {

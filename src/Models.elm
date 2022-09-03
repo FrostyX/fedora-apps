@@ -1,14 +1,19 @@
 module Models exposing (..)
 
+import Bootstrap.Popover as Popover
+import Dict exposing (Dict)
 import Http
 
 
 type alias Model =
-    Apps
+    { apps : Apps
+    , popoverState : Dict String Popover.State
+    }
 
 
 type Msg
     = GotApps (Result Http.Error Apps)
+    | PopoverMsg App Popover.State
 
 
 type alias App =

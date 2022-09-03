@@ -1,9 +1,15 @@
 module Views exposing (..)
 
+import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 import Bootstrap.Grid as Grid
+import Bootstrap.Popover as Popover
+import Browser.Dom
+import Color
+import Dict exposing (Dict)
+import Hovercard exposing (hovercard)
 import Html
     exposing
         ( Html
@@ -50,9 +56,9 @@ view model =
         , node "link" [ rel "stylesheet", href "/css/style.css" ] []
         , viewMenu
         , div [ class "container content" ]
-            [ case model of
+            [ case model.apps of
                 Apps apps ->
-                    div [] (apps |> List.map viewAllApps)
+                    div [] (apps |> List.map (viewAllApps model))
             ]
         ]
 
@@ -95,19 +101,19 @@ viewLogo =
         [ img [ src "/img/apps-logo.svg" ] [] ]
 
 
-viewAllApps : App -> Html Msg
-viewAllApps app =
+viewAllApps : Model -> App -> Html Msg
+viewAllApps model app =
     div []
         [ h1 [] [ text app.name ]
         , p [] (viewAppDescription app)
         , case app.children of
             Apps apps ->
-                div [] (apps |> List.map viewAppGroup)
+                div [] (apps |> List.map (viewAppGroup model))
         ]
 
 
-viewAppGroup : App -> Html Msg
-viewAppGroup app =
+viewAppGroup : Model -> App -> Html Msg
+viewAppGroup model app =
     div [ class "app-group" ]
         [ div [ class "app-group-header row justify-content-md-center" ]
             [ div [ class "col col-lg-10" ]
@@ -120,31 +126,46 @@ viewAppGroup app =
                 Apps apps ->
                     apps
                         |> List.Split.chunksOfLeft 4
-                        |> List.map viewAppRow
+                        |> List.map (viewAppRow model)
             )
         ]
 
 
-viewAppRow : List App -> Html Msg
-viewAppRow apps =
+viewAppRow : Model -> List App -> Html Msg
+viewAppRow model apps =
     div [ class "row" ]
         [ div [ class "col-12" ]
             [ div [ class "card-deck" ]
-                (apps |> List.map viewApp)
+                (apps |> List.map (viewApp model))
             ]
         ]
 
 
-viewApp : App -> Html Msg
-viewApp app =
-    div [ class "mb-4" ]
-        [ Card.config []
-            |> Card.imgTop [ src (appIcon app) ] []
-            |> Card.block []
-                [ Block.titleH3 [] [ text app.name ]
+viewApp : Model -> App -> Html Msg
+viewApp model app =
+    let
+        popoverState =
+            Dict.get app.name model.popoverState
+                |> Maybe.withDefault
+                    Popover.initialState
+    in
+    Popover.config
+        (div [ class "mb-4" ]
+            [ Card.config
+                [ Card.attrs <| Popover.onHover popoverState (PopoverMsg app)
                 ]
-            |> Card.view
-        ]
+                |> Card.imgTop [ src (appIcon app) ] []
+                |> Card.block []
+                    [ Block.titleH3 [] [ text app.name ]
+                    ]
+                |> Card.view
+            ]
+        )
+        |> Popover.top
+        |> Popover.titleH4 [] [ text app.name ]
+        |> Popover.content []
+            (viewAppDescription app)
+        |> Popover.view popoverState
 
 
 viewAppDetail : App -> Html Msg
