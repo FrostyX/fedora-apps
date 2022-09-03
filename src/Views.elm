@@ -125,7 +125,7 @@ viewAppGroup model app =
             (case app.children of
                 Apps apps ->
                     apps
-                        |> List.Split.chunksOfLeft 4
+                        |> List.Split.chunksOfLeft 5
                         |> List.map (viewAppRow model)
             )
         ]
