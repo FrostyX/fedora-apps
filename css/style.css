@@ -34,8 +34,31 @@ body {
     font-size: 1.25rem;
 }
 
-
 .app-group-header p {
     text-align: center;
     margin-bottom: 40px;
+}
+
+#menu {
+    background-color: #52a2da;
+}
+
+#menu .navbar {
+    height: 41px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+#menu a {
+    color: white;
+}
+
+#menu input {
+    background-color: #52a2da;
+    color: white;
+}
+
+::placeholder {
+  color: white !important;
+  opacity: 1;
 }

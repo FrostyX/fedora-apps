@@ -10,13 +10,16 @@ import Html
         , a
         , button
         , div
+        , form
         , h1
         , h2
         , h3
         , hr
         , img
+        , input
         , node
         , p
+        , span
         , text
         )
 import Html.Attributes
@@ -26,6 +29,7 @@ import Html.Attributes
         , href
         , id
         , name
+        , placeholder
         , rel
         , src
         , style
@@ -41,15 +45,54 @@ import Models exposing (..)
 
 view : Model -> Html Msg
 view model =
-    Grid.container []
+    div []
         [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
         , node "link" [ rel "stylesheet", href "/css/style.css" ] []
-        , div [ class "content" ]
+        , viewMenu
+        , div [ class "container content" ]
             [ case model of
                 Apps apps ->
                     div [] (apps |> List.map viewAllApps)
             ]
         ]
+
+
+viewMenu : Html Msg
+viewMenu =
+    div [ id "menu", class "container-fluid" ]
+        [ div [ class "container" ]
+            [ Html.nav
+                [ class "navbar"
+                , class "navbar-expand-lg"
+                ]
+                [ viewLogo
+                , div
+                    [ class "navbar-nav"
+                    , class "ml-auto"
+                    ]
+                    [ form [ class "form-inline" ]
+                        [ input [ class "form-control form-control-sm", placeholder "Search" ] []
+                        ]
+                    , viewMenuItem "New App"
+                        "#"
+                    , viewMenuItem "Source code"
+                        "https://github.com/frostyx/fedora-apps/"
+                    ]
+                ]
+            ]
+        ]
+
+
+viewMenuItem : String -> String -> Html Msg
+viewMenuItem title url =
+    a [ class "nav-link", class "nav-item", href url ]
+        [ text title ]
+
+
+viewLogo : Html Msg
+viewLogo =
+    a [ id "logo", class "navbar-brand", href "/" ]
+        [ img [ src "/img/apps-logo.svg" ] [] ]
 
 
 viewAllApps : App -> Html Msg
