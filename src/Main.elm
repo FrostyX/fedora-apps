@@ -65,3 +65,45 @@ update msg model =
               }
             , Cmd.none
             )
+
+        Search value ->
+            if String.isEmpty value then
+                ( model, Cmd.none )
+
+            else
+                case model.apps of
+                    Apps apps ->
+                        case List.head apps of
+                            Just app ->
+                                ( { model | apps = Apps [ search value app ] }, Cmd.none )
+
+                            Nothing ->
+                                ( { model | apps = model.apps }, Cmd.none )
+
+
+search : String -> App -> App
+search value appRoot =
+    { appRoot
+        | children =
+            case appRoot.children of
+                Apps apps ->
+                    apps
+                        |> List.map
+                            (\app ->
+                                { app
+                                    | children =
+                                        case app.children of
+                                            Apps leafChildren ->
+                                                leafChildren
+                                                    |> List.filter
+                                                        (\x -> x.name == "The Planet")
+                                                    |> Apps
+                                }
+                            )
+                        |> Apps
+    }
+
+
+
+-- inorder : Apps
+-- inorder apps =

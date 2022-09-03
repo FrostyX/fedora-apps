@@ -42,7 +42,7 @@ import Html.Attributes
         , value
         , width
         )
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Html.Parser
 import Html.Parser.Util
 import List.Split
@@ -77,7 +77,12 @@ viewMenu =
                     , class "ml-auto"
                     ]
                     [ form [ class "form-inline" ]
-                        [ input [ class "form-control form-control-sm", placeholder "Search" ] []
+                        [ input
+                            [ class "form-control form-control-sm"
+                            , placeholder "Search"
+                            , onInput Search
+                            ]
+                            []
                         ]
                     , viewMenuItem "New App"
                         "#"

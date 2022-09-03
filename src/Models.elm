@@ -14,6 +14,7 @@ type alias Model =
 type Msg
     = GotApps (Result Http.Error Apps)
     | PopoverMsg App Popover.State
+    | Search String
 
 
 type alias App =
