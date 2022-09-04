@@ -8,6 +8,7 @@
         "direct": {
             "MaybeJustJames/yaml": "2.1.2",
             "NoRedInk/elm-json-decode-pipeline": "1.0.1",
+            "NoRedInk/elm-simple-fuzzy": "1.0.3",
             "avh4/elm-color": "1.0.0",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",

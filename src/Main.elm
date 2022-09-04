@@ -9,6 +9,7 @@ import Dict exposing (Dict)
 import Http
 import Models exposing (..)
 import Set exposing (Set)
+import Simple.Fuzzy as Fuzzy
 import Views exposing (view)
 
 
@@ -105,4 +106,4 @@ appsToList appRoot =
 
 appFilter : String -> String -> Bool
 appFilter value name =
-    name /= value
+    Fuzzy.match value name |> not
