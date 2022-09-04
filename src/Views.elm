@@ -120,21 +120,33 @@ viewAllApps model app =
 
 viewAppGroup : Model -> App -> Html Msg
 viewAppGroup model app =
-    div [ class "app-group" ]
-        [ div [ class "app-group-header row justify-content-md-center" ]
-            [ div [ class "col col-lg-10" ]
-                [ h2 [] [ text app.name ]
-                , p [] (viewAppDescription app)
-                ]
-            ]
-        , div [ class "app-rows" ]
-            (case app.children of
+    let
+        visibleChildren =
+            case app.children of
                 Apps apps ->
                     apps
-                        |> List.Split.chunksOfLeft 5
-                        |> List.map (viewAppRow model)
-            )
-        ]
+                        |> List.filter
+                            (\a ->
+                                not <| Set.member a.name model.hiddenApps
+                            )
+    in
+    if List.isEmpty visibleChildren then
+        div [] []
+
+    else
+        div [ class "app-group" ]
+            [ div [ class "app-group-header row justify-content-md-center" ]
+                [ div [ class "col col-lg-10" ]
+                    [ h2 [] [ text app.name ]
+                    , p [] (viewAppDescription app)
+                    ]
+                ]
+            , div [ class "app-rows" ]
+                (visibleChildren
+                    |> List.Split.chunksOfLeft 5
+                    |> List.map (viewAppRow model)
+                )
+            ]
 
 
 viewAppRow : Model -> List App -> Html Msg
