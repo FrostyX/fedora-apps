@@ -52,9 +52,27 @@ type Msg
 coordinates of the svg element. The simulation is started when we
 receive them.
 -}
-type Model
+
+
+
+-- type Model
+--     = Init (Graph Entity ())
+--     | Ready ReadyState
+
+
+type GraphReady
     = Init (Graph Entity ())
     | Ready ReadyState
+
+
+
+-- type Ready
+--     = Ready ReadyState
+
+
+type alias Model =
+    { graphReady : GraphReady
+    }
 
 
 type alias ReadyState =
@@ -101,7 +119,7 @@ init _ =
         graph =
             Graph.mapContexts initNode graphData
     in
-    ( Init graph, getElementPosition )
+    ( { graphReady = Init graph }, getElementPosition )
 
 
 {-| The graph data we defined at the end of the module has the type
@@ -198,7 +216,7 @@ subscriptions model =
                 ]
     in
     Sub.batch
-        [ case model of
+        [ case model.graphReady of
             Init _ ->
                 Sub.none
 
@@ -214,7 +232,7 @@ subscriptions model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( msg, model ) of
+    case ( msg, model.graphReady ) of
         ( Tick _, Ready state ) ->
             handleTick state
 
@@ -225,32 +243,36 @@ update msg model =
             -- When we get the svg element position and dimensions, we are
             -- ready to initialize the simulation and the zoom, but we cannot
             -- show the graph yet. If we did, we would see a noticable jump.
-            ( Ready
-                { element = element
-                , graph = graph
-                , showGraph = False
-                , simulation =
-                    initSimulation
-                        graph
-                        element.width
-                        element.height
-                , zoom = initZoom element
-                }
+            ( { graphReady =
+                    Ready
+                        { element = element
+                        , graph = graph
+                        , showGraph = False
+                        , simulation =
+                            initSimulation
+                                graph
+                                element.width
+                                element.height
+                        , zoom = initZoom element
+                        }
+              }
             , Cmd.none
             )
 
         ( ReceiveElementPosition (Ok { element }), Ready state ) ->
-            ( Ready
-                { element = element
-                , graph = state.graph
-                , showGraph = True
-                , simulation =
-                    initSimulation
-                        state.graph
-                        element.width
-                        element.height
-                , zoom = initZoom element
-                }
+            ( { graphReady =
+                    Ready
+                        { element = element
+                        , graph = state.graph
+                        , showGraph = True
+                        , simulation =
+                            initSimulation
+                                state.graph
+                                element.width
+                                element.height
+                        , zoom = initZoom element
+                        }
+              }
             , Cmd.none
             )
 
@@ -261,7 +283,12 @@ update msg model =
             ( model, getElementPosition )
 
         ( ZoomMsg zoomMsg, Ready state ) ->
-            ( Ready { state | zoom = Zoom.update zoomMsg state.zoom }
+            ( { graphReady =
+                    Ready
+                        { state
+                            | zoom = Zoom.update zoomMsg state.zoom
+                        }
+              }
             , Cmd.none
             )
 
@@ -277,12 +304,14 @@ handleTick state =
                 List.map .label <|
                     Graph.nodes state.graph
     in
-    ( Ready
-        { state
-            | graph = updateGraphWithList state.graph list
-            , showGraph = True
-            , simulation = newSimulation
-        }
+    ( { graphReady =
+            Ready
+                { state
+                    | graph = updateGraphWithList state.graph list
+                    , showGraph = True
+                    , simulation = newSimulation
+                }
+      }
     , Cmd.none
     )
 
@@ -362,7 +391,7 @@ view model =
     let
         zoomEvents : List (Attribute Msg)
         zoomEvents =
-            case model of
+            case model.graphReady of
                 Init _ ->
                     []
 
@@ -371,7 +400,7 @@ view model =
 
         zoomTransformAttr : Attribute Msg
         zoomTransformAttr =
-            case model of
+            case model.graphReady of
                 Init _ ->
                     class []
 
@@ -412,7 +441,7 @@ view model =
 
 renderGraph : Model -> Svg Msg
 renderGraph model =
-    case model of
+    case model.graphReady of
         Init _ ->
             text ""
 
