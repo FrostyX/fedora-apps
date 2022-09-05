@@ -115,11 +115,21 @@ correct node positions and the center force.
 init : () -> ( Model, Cmd Msg )
 init _ =
     let
+        result : ( GraphReady, Cmd Msg )
+        result =
+            graphInit
+    in
+    ( { graphReady = Tuple.first result }, Tuple.second result )
+
+
+graphInit : ( GraphReady, Cmd Msg )
+graphInit =
+    let
         graph : Graph Entity ()
         graph =
             Graph.mapContexts initNode graphData
     in
-    ( { graphReady = Init graph }, getElementPosition )
+    ( Init graph, getElementPosition )
 
 
 {-| The graph data we defined at the end of the module has the type
@@ -237,78 +247,75 @@ graphSubscriptions graphReady =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    graphUpdate msg model
+    let
+        result : ( GraphReady, Cmd Msg )
+        result =
+            graphUpdate msg model.graphReady
+    in
+    ( { model | graphReady = Tuple.first result }, Tuple.second result )
 
 
-graphUpdate : Msg -> Model -> ( Model, Cmd Msg )
-graphUpdate msg model =
-    -- graphUpdate : Msg -> GraphReady -> ( Model, Cmd Msg )
-    -- graphUpdate msg graphReady =
-    case ( msg, model.graphReady ) of
+graphUpdate : Msg -> GraphReady -> ( GraphReady, Cmd Msg )
+graphUpdate msg graphReady =
+    case ( msg, graphReady ) of
         ( Tick _, Ready state ) ->
             handleTick state
 
         ( Tick _, Init _ ) ->
-            ( model, Cmd.none )
+            ( graphReady, Cmd.none )
 
         ( ReceiveElementPosition (Ok { element }), Init graph ) ->
             -- When we get the svg element position and dimensions, we are
             -- ready to initialize the simulation and the zoom, but we cannot
             -- show the graph yet. If we did, we would see a noticable jump.
-            ( { graphReady =
-                    Ready
-                        { element = element
-                        , graph = graph
-                        , showGraph = False
-                        , simulation =
-                            initSimulation
-                                graph
-                                element.width
-                                element.height
-                        , zoom = initZoom element
-                        }
-              }
+            ( Ready
+                { element = element
+                , graph = graph
+                , showGraph = False
+                , simulation =
+                    initSimulation
+                        graph
+                        element.width
+                        element.height
+                , zoom = initZoom element
+                }
             , Cmd.none
             )
 
         ( ReceiveElementPosition (Ok { element }), Ready state ) ->
-            ( { graphReady =
-                    Ready
-                        { element = element
-                        , graph = state.graph
-                        , showGraph = True
-                        , simulation =
-                            initSimulation
-                                state.graph
-                                element.width
-                                element.height
-                        , zoom = initZoom element
-                        }
-              }
+            ( Ready
+                { element = element
+                , graph = state.graph
+                , showGraph = True
+                , simulation =
+                    initSimulation
+                        state.graph
+                        element.width
+                        element.height
+                , zoom = initZoom element
+                }
             , Cmd.none
             )
 
         ( ReceiveElementPosition (Err _), _ ) ->
-            ( model, Cmd.none )
+            ( graphReady, Cmd.none )
 
         ( Resize _ _, _ ) ->
-            ( model, getElementPosition )
+            ( graphReady, getElementPosition )
 
         ( ZoomMsg zoomMsg, Ready state ) ->
-            ( { graphReady =
-                    Ready
-                        { state
-                            | zoom = Zoom.update zoomMsg state.zoom
-                        }
-              }
+            ( Ready
+                { state
+                    | zoom = Zoom.update zoomMsg state.zoom
+                }
             , Cmd.none
             )
 
         ( ZoomMsg _, Init _ ) ->
-            ( model, Cmd.none )
+            ( graphReady, Cmd.none )
 
 
-handleTick : ReadyState -> ( Model, Cmd Msg )
+handleTick : ReadyState -> ( GraphReady, Cmd Msg )
 handleTick state =
     let
         ( newSimulation, list ) =
@@ -316,14 +323,12 @@ handleTick state =
                 List.map .label <|
                     Graph.nodes state.graph
     in
-    ( { graphReady =
-            Ready
-                { state
-                    | graph = updateGraphWithList state.graph list
-                    , showGraph = True
-                    , simulation = newSimulation
-                }
-      }
+    ( Ready
+        { state
+            | graph = updateGraphWithList state.graph list
+            , showGraph = True
+            , simulation = newSimulation
+        }
     , Cmd.none
     )
 
