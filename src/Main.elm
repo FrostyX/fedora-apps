@@ -4,12 +4,10 @@ import AppGraph
 import Bootstrap.Popover as Popover
 import Browser
 import Debug
-import Decoders exposing (..)
 import Dict exposing (Dict)
-import Http
+import Logic exposing (..)
 import Models exposing (..)
 import Set exposing (Set)
-import Simple.Fuzzy as Fuzzy
 import Views exposing (view)
 
 
@@ -37,15 +35,6 @@ init _ =
       }
     , Cmd.batch [ readApps ]
     )
-
-
-readApps : Cmd Msg
-readApps =
-    Http.get
-        -- https://onlineyamltools.com/convert-yaml-to-json
-        { url = "/data/apps.json"
-        , expect = Http.expectJson GotApps appListDecoder
-        }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -91,19 +80,3 @@ update msg model =
 
                             Nothing ->
                                 ( { model | apps = model.apps }, Cmd.none )
-
-
-appsToList : App -> List String
-appsToList appRoot =
-    case appRoot.children of
-        Apps apps ->
-            [ appRoot.name ]
-                ++ (apps
-                        |> List.map appsToList
-                        |> List.concat
-                   )
-
-
-appFilter : String -> String -> Bool
-appFilter value name =
-    Fuzzy.match value name |> not

@@ -46,6 +46,7 @@ import Html.Events exposing (onClick, onInput)
 import Html.Parser
 import Html.Parser.Util
 import List.Split
+import Logic exposing (..)
 import Models exposing (..)
 import Set exposing (Set)
 
@@ -214,17 +215,6 @@ viewAppDetail app =
 viewAppIcon : App -> Html Msg
 viewAppIcon app =
     img [ src (appIcon app) ] []
-
-
-appIcon : App -> String
-appIcon app =
-    "/img/icons/"
-        ++ (if String.isEmpty app.data.icon then
-                "missing.png"
-
-            else
-                app.data.icon
-           )
 
 
 viewAppDescription : App -> List (Html Msg)
