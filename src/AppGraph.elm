@@ -203,6 +203,11 @@ a mouse interaction in progress, and that we only subscribe to
 -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
+    graphSubscriptions model.graphReady
+
+
+graphSubscriptions : GraphReady -> Sub Msg
+graphSubscriptions graphReady =
     let
         readySubscriptions : ReadyState -> Sub Msg
         readySubscriptions { simulation, zoom } =
@@ -216,7 +221,7 @@ subscriptions model =
                 ]
     in
     Sub.batch
-        [ case model.graphReady of
+        [ case graphReady of
             Init _ ->
                 Sub.none
 
@@ -232,6 +237,13 @@ subscriptions model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    graphUpdate msg model
+
+
+graphUpdate : Msg -> Model -> ( Model, Cmd Msg )
+graphUpdate msg model =
+    -- graphUpdate : Msg -> GraphReady -> ( Model, Cmd Msg )
+    -- graphUpdate msg graphReady =
     case ( msg, model.graphReady ) of
         ( Tick _, Ready state ) ->
             handleTick state
@@ -388,10 +400,15 @@ shiftPosition zoom ( elementX, elementY ) ( clientX, clientY ) =
 
 view : Model -> Svg Msg
 view model =
+    viewGraph model.graphReady
+
+
+viewGraph : GraphReady -> Svg Msg
+viewGraph graphReady =
     let
         zoomEvents : List (Attribute Msg)
         zoomEvents =
-            case model.graphReady of
+            case graphReady of
                 Init _ ->
                     []
 
@@ -400,7 +417,7 @@ view model =
 
         zoomTransformAttr : Attribute Msg
         zoomTransformAttr =
-            case model.graphReady of
+            case graphReady of
                 Init _ ->
                     class []
 
@@ -434,14 +451,14 @@ view model =
                 []
             , g
                 [ zoomTransformAttr ]
-                [ renderGraph model ]
+                [ renderGraph graphReady ]
             ]
         ]
 
 
-renderGraph : Model -> Svg Msg
-renderGraph model =
-    case model.graphReady of
+renderGraph : GraphReady -> Svg Msg
+renderGraph graphReady =
+    case graphReady of
         Init _ ->
             text ""
 
