@@ -53,7 +53,7 @@ init _ =
     let
         result : ( GraphReady, Cmd Msg )
         result =
-            graphInit
+            graphInit graphData
     in
     ( { apps = Apps []
       , hiddenApps = Set.empty
@@ -66,12 +66,12 @@ init _ =
     )
 
 
-graphInit : ( GraphReady, Cmd Msg )
-graphInit =
+graphInit : Graph String () -> ( GraphReady, Cmd Msg )
+graphInit data =
     let
         graph : Graph Entity ()
         graph =
-            Graph.mapContexts initNode graphData
+            Graph.mapContexts initNode data
     in
     ( Init graph, getElementPosition )
 
@@ -186,6 +186,9 @@ graphSubscriptions graphReady =
     in
     Sub.batch
         [ case graphReady of
+            NotYet ->
+                Sub.none
+
             Init _ ->
                 Sub.none
 
@@ -350,6 +353,9 @@ viewGraph graphReady =
         zoomEvents : List (Attribute Msg)
         zoomEvents =
             case graphReady of
+                NotYet ->
+                    []
+
                 Init _ ->
                     []
 
@@ -359,6 +365,9 @@ viewGraph graphReady =
         zoomTransformAttr : Attribute Msg
         zoomTransformAttr =
             case graphReady of
+                NotYet ->
+                    class []
+
                 Init _ ->
                     class []
 
@@ -400,6 +409,9 @@ viewGraph graphReady =
 renderGraph : GraphReady -> Svg Msg
 renderGraph graphReady =
     case graphReady of
+        NotYet ->
+            text ""
+
         Init _ ->
             text ""
 

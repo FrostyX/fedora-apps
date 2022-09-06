@@ -58,6 +58,7 @@ type Apps
 type GraphReady
     = Init (Graph Entity ())
     | Ready ReadyState
+    | NotYet
 
 
 type alias ReadyState =

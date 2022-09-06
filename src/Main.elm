@@ -29,15 +29,10 @@ subscriptions model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    let
-        result : ( GraphReady, Cmd Msg )
-        result =
-            AppGraph.graphInit
-    in
     ( { apps = Apps []
       , hiddenApps = Set.empty
       , popoverState = Dict.fromList []
-      , graphReady = Tuple.first result
+      , graphReady = NotYet
       }
     , Cmd.batch [ readApps ]
     )
@@ -53,7 +48,17 @@ update msg model =
             in
             case result of
                 Ok apps ->
-                    ( { model | apps = apps }, AppGraph.getElementPosition )
+                    let
+                        graphInit : ( GraphReady, Cmd Msg )
+                        graphInit =
+                            AppGraph.graphInit (graphData apps)
+                    in
+                    ( { model
+                        | apps = apps
+                        , graphReady = Tuple.first graphInit
+                      }
+                    , AppGraph.getElementPosition
+                    )
 
                 Err _ ->
                     ( model, Cmd.none )

@@ -1,6 +1,7 @@
 module Logic exposing (..)
 
 import Decoders exposing (..)
+import Graph exposing (Graph)
 import Http
 import Models exposing (..)
 import Simple.Fuzzy as Fuzzy
@@ -40,3 +41,34 @@ appsToList appRoot =
 appFilter : String -> String -> Bool
 appFilter value name =
     Fuzzy.match value name |> not
+
+
+graphData : Apps -> Graph String ()
+graphData apps =
+    let
+        appNames =
+            case apps of
+                Apps apps2 ->
+                    case List.head apps2 of
+                        Just root ->
+                            appsToList root
+
+                        Nothing ->
+                            []
+    in
+    Graph.fromNodeLabelsAndEdgePairs
+        appNames
+        [ ( 0, 1 )
+        , ( 0, 2 )
+        , ( 0, 3 )
+        , ( 0, 4 )
+        , ( 0, 5 )
+        , ( 0, 6 )
+        , ( 0, 7 )
+        , ( 0, 8 )
+
+        --
+        , ( 3, 9 )
+        , ( 3, 10 )
+        , ( 3, 11 )
+        ]
