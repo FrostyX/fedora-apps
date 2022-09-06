@@ -7,12 +7,15 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events as Events
 import Color
+import Dict exposing (Dict)
 import Force
 import Graph exposing (Edge, Graph, Node, NodeContext, NodeId)
 import Html exposing (div)
 import Html.Attributes exposing (style)
 import Html.Events.Extra.Mouse as Mouse
 import Json.Decode as Decode
+import Models exposing (..)
+import Set exposing (Set)
 import Task
 import Time
 import TypedSvg exposing (circle, defs, g, line, marker, polygon, rect, svg, text_, title)
@@ -38,73 +41,6 @@ edgeColor =
 
 
 
--- Types
-
-
-type Msg
-    = ReceiveElementPosition (Result Dom.Error Dom.Element)
-    | Resize Int Int
-    | Tick Time.Posix
-    | ZoomMsg OnZoom
-
-
-{-| In order to correctly calculate the node positions, we need to know the
-coordinates of the svg element. The simulation is started when we
-receive them.
--}
-
-
-
--- type Model
---     = Init (Graph Entity ())
---     | Ready ReadyState
-
-
-type GraphReady
-    = Init (Graph Entity ())
-    | Ready ReadyState
-
-
-
--- type Ready
---     = Ready ReadyState
-
-
-type alias Model =
-    { graphReady : GraphReady
-    }
-
-
-type alias ReadyState =
-    { graph : Graph Entity ()
-    , simulation : Force.State NodeId
-    , zoom : Zoom
-
-    -- The position and dimensions of the svg element.
-    , element : Element
-
-    -- If you immediately show the graph when moving from `Init` to `Ready`,
-    -- you will briefly see the nodes in the upper left corner before the first
-    -- simulation tick positions them in the center. To avoid this sudden jump,
-    -- `showGraph` is initialized with `False` and set to `True` with the first
-    -- `Tick`.
-    , showGraph : Bool
-    }
-
-
-type alias Element =
-    { height : Float
-    , width : Float
-    , x : Float
-    , y : Float
-    }
-
-
-type alias Entity =
-    Force.Entity NodeId { value : String }
-
-
-
 -- Init
 
 
@@ -119,7 +55,15 @@ init _ =
         result =
             graphInit
     in
-    ( { graphReady = Tuple.first result }, Tuple.second result )
+    ( { apps = Apps []
+      , hiddenApps = Set.empty
+
+      -- , hiddenApps = Set.fromList [ "FedoraPeople", "Fedora Accounts" ]
+      , popoverState = Dict.fromList []
+      , graphReady = Tuple.first result
+      }
+    , Tuple.second result
+    )
 
 
 graphInit : ( GraphReady, Cmd Msg )
@@ -185,7 +129,7 @@ initSimulation graph width height =
         -- coordinates to the center of the svg viewport.
         , Force.center (width / 2) (height / 2)
         ]
-        |> Force.iterations 400
+        |> Force.iterations 100
 
 
 {-| Initializes the zoom and sets a minimum and maximum zoom level.
@@ -267,6 +211,10 @@ update msg model =
 
 graphUpdate : Msg -> GraphReady -> ( GraphReady, Cmd Msg )
 graphUpdate msg graphReady =
+    let
+        log =
+            Debug.log "Update" msg
+    in
     case ( msg, graphReady ) of
         ( Tick _, Ready state ) ->
             handleTick state
@@ -322,6 +270,9 @@ graphUpdate msg graphReady =
             )
 
         ( ZoomMsg _, Init _ ) ->
+            ( graphReady, Cmd.none )
+
+        _ ->
             ( graphReady, Cmd.none )
 
 

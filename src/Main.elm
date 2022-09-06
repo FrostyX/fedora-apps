@@ -22,16 +22,22 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch []
+    Sub.batch
+        [ AppGraph.graphSubscriptions model.graphReady
+        ]
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
+    let
+        result : ( GraphReady, Cmd Msg )
+        result =
+            AppGraph.graphInit
+    in
     ( { apps = Apps []
       , hiddenApps = Set.empty
-
-      -- , hiddenApps = Set.fromList [ "FedoraPeople", "Fedora Accounts" ]
       , popoverState = Dict.fromList []
+      , graphReady = Tuple.first result
       }
     , Cmd.batch [ readApps ]
     )
@@ -47,7 +53,7 @@ update msg model =
             in
             case result of
                 Ok apps ->
-                    ( { model | apps = apps }, Cmd.none )
+                    ( { model | apps = apps }, AppGraph.getElementPosition )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -80,3 +86,6 @@ update msg model =
 
                             Nothing ->
                                 ( { model | apps = model.apps }, Cmd.none )
+
+        _ ->
+            AppGraph.update msg model

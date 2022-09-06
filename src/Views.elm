@@ -1,5 +1,6 @@
 module Views exposing (..)
 
+import AppGraph
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Card as Card
@@ -108,11 +109,17 @@ viewLogo =
         [ img [ src "/img/apps-logo.svg" ] [] ]
 
 
+viewGraph : GraphReady -> Html Msg
+viewGraph graphReady =
+    div [] [ AppGraph.viewGraph graphReady ]
+
+
 viewAllApps : Model -> App -> Html Msg
 viewAllApps model app =
     div []
         [ h1 [] [ text app.name ]
         , p [] (viewAppDescription app)
+        , viewGraph model.graphReady
         , case app.children of
             Apps apps ->
                 div [] (apps |> List.map (viewAppGroup model))
