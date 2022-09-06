@@ -161,8 +161,18 @@ initSimulation graph width height =
         [ -- Defines the force that pulls connected nodes together. You can use
           -- `Force.customLinks` if you need to adjust the distance and
           -- strength.
-          -- Force.customLinks 1 <| List.map link <| Graph.edges graph
-          Force.links <| List.map link <| Graph.edges graph
+          Force.customLinks 1
+            (Graph.edges graph
+                |> List.map link
+                |> List.map
+                    (\x ->
+                        { distance = 100
+                        , source = Tuple.first x
+                        , strength = Just 2
+                        , target = Tuple.second x
+                        }
+                    )
+            )
 
         -- Defines the force that pushes the nodes apart. The default strength
         -- is `-30`, but since we are drawing fairly large circles for each
