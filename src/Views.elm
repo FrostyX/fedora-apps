@@ -111,7 +111,7 @@ viewLogo =
 
 viewGraph : GraphReady -> Html Msg
 viewGraph graphReady =
-    div [] [ AppGraph.viewGraph graphReady ]
+    div [] [ AppGraph.viewGraph graphReady [ id "graph" ] ]
 
 
 viewAllApps : Model -> App -> Html Msg

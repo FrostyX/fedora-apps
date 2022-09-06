@@ -8,7 +8,7 @@ h3 {
 }
 
 .card {
-    width: 190px;
+    width: 198px;
     min-height: 150px;
     text-align: center;
     padding-top: 20px;
@@ -77,4 +77,15 @@ body {
 h4.popover-header img {
     width: 20px;
     margin-right: 5px;
+}
+
+#graph {
+    height: 500px;
+    margin: 50px auto;
+    border: 2px solid #e9ecef;
+}
+
+#graph text {
+    color: white;
+
 }

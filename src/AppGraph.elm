@@ -19,7 +19,7 @@ import Set exposing (Set)
 import Task
 import Time
 import TypedSvg exposing (circle, defs, g, line, marker, polygon, rect, svg, text_, title)
-import TypedSvg.Attributes as Attrs exposing (class, cursor, fill, fontSize, id, markerEnd, markerHeight, markerWidth, orient, pointerEvents, points, refX, refY, stroke, transform)
+import TypedSvg.Attributes as Attrs exposing (class, cursor, fill, fontFamily, fontSize, id, markerEnd, markerHeight, markerWidth, orient, pointerEvents, points, refX, refY, stroke, transform)
 import TypedSvg.Attributes.InPx exposing (cx, cy, dx, dy, height, r, strokeWidth, width, x1, x2, y1, y2)
 import TypedSvg.Core exposing (Attribute, Svg, text)
 import TypedSvg.Types exposing (AlignmentBaseline(..), AnchorAlignment(..), Cursor(..), Length(..), Opacity(..), Paint(..), Transform(..))
@@ -110,7 +110,7 @@ initSimulation graph width height =
                 |> List.map link
                 |> List.map
                     (\x ->
-                        { distance = 100
+                        { distance = 150
                         , source = Tuple.first x
                         , strength = Just 2
                         , target = Tuple.second x
@@ -123,7 +123,7 @@ initSimulation graph width height =
         -- node, we need to increase the repulsion by decreasing the strength to
         -- `-150`.
         , Force.manyBodyStrength -150 <| List.map .id <| Graph.nodes graph
-        , Force.collision 21 <| List.map .id <| Graph.nodes graph
+        , Force.collision 50 <| List.map .id <| Graph.nodes graph
 
         -- Defines the force that pulls nodes to a center. We set the center
         -- coordinates to the center of the svg viewport.
@@ -345,10 +345,15 @@ into consideration.
 view : Model -> Svg Msg
 view model =
     viewGraph model.graphReady
+        [ style "width" "80%"
+        , style "height" "400px"
+        , style "margin" "50px auto"
+        , style "border" "2px solid rgba(0, 0, 0, 0.85)"
+        ]
 
 
-viewGraph : GraphReady -> Svg Msg
-viewGraph graphReady =
+viewGraph : GraphReady -> List (Html.Attribute Msg) -> Svg Msg
+viewGraph graphReady attrs =
     let
         zoomEvents : List (Attribute Msg)
         zoomEvents =
@@ -375,11 +380,7 @@ viewGraph graphReady =
                     Zoom.transform zoom
     in
     div
-        [ style "width" "80%"
-        , style "height" "400px"
-        , style "margin" "50px auto"
-        , style "border" "2px solid rgba(0, 0, 0, 0.85)"
-        ]
+        attrs
         [ svg
             [ id elementId
             , Attrs.width <| Percent 100
@@ -437,10 +438,10 @@ nodeElement : Node Entity -> Svg Msg
 nodeElement node =
     g [ class [ "node" ] ]
         [ circle
-            [ r 20
-            , strokeWidth 3
-            , fill (Paint Color.yellow)
-            , stroke (Paint Color.black)
+            [ r 40
+            , strokeWidth 1
+            , fill (Paint <| Color.rgb255 233 236 239)
+            , stroke (Paint <| Color.rgb255 81 162 218)
             , cursor CursorPointer
 
             -- The coordinates are initialized and updated by `Force.simulation`
@@ -460,8 +461,8 @@ nodeElement node =
             , Attrs.textAnchor AnchorMiddle
 
             -- styling
-            , fontSize <| Px 8
-            , fill (Paint Color.black)
+            , fontSize <| Px 12
+            , fill (Paint <| Color.rgb255 54 54 54)
 
             -- Setting pointer events to none allows the user to click on the
             -- element behind the text, so in this case the circle. If you
