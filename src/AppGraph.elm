@@ -345,22 +345,6 @@ updateNode ( x, y ) nodeCtx =
     updateContextWithValue nodeCtx { nodeValue | x = x, y = y }
 
 
-updateNodePosition : NodeId -> ( Float, Float ) -> ReadyState -> Graph Entity ()
-updateNodePosition index xy state =
-    Graph.update
-        index
-        (Maybe.map
-            (updateNode
-                (shiftPosition
-                    state.zoom
-                    ( state.element.x, state.element.y )
-                    xy
-                )
-            )
-        )
-        state.graph
-
-
 updateContextWithValue :
     NodeContext Entity ()
     -> Entity
@@ -388,15 +372,6 @@ the node positions are relative to the svg viewport. This function adjusts the
 coordinates accordingly. It also takes the current zoom level and position
 into consideration.
 -}
-shiftPosition : Zoom -> ( Float, Float ) -> ( Float, Float ) -> ( Float, Float )
-shiftPosition zoom ( elementX, elementY ) ( clientX, clientY ) =
-    let
-        zoomRecord =
-            Zoom.asRecord zoom
-    in
-    ( (clientX - zoomRecord.translate.x - elementX) / zoomRecord.scale
-    , (clientY - zoomRecord.translate.y - elementY) / zoomRecord.scale
-    )
 
 
 
