@@ -123,7 +123,11 @@ viewAllApps model app =
                 , p [] (viewAppDescription app)
                 ]
             ]
-        , viewGraph model.graphReady
+        , if Set.isEmpty model.hiddenApps then
+            viewGraph model.graphReady
+
+          else
+            div [] []
         , case app.children of
             Apps apps ->
                 div [] (apps |> List.map (viewAppGroup model))
