@@ -1,6 +1,7 @@
 module Logic exposing (..)
 
 import Decoders exposing (..)
+import Dict exposing (Dict)
 import Graph exposing (Graph)
 import Http
 import Models exposing (..)
@@ -55,20 +56,45 @@ graphData apps =
 
                         Nothing ->
                             []
+
+        appIds =
+            Dict.fromList (List.indexedMap (\k v -> ( v, k )) appNames)
+
+        edges =
+            case apps of
+                Apps apps2 ->
+                    case List.head apps2 of
+                        Just root ->
+                            graphEdges root appIds
+
+                        Nothing ->
+                            []
     in
     Graph.fromNodeLabelsAndEdgePairs
         appNames
-        [ ( 0, 1 )
-        , ( 0, 2 )
-        , ( 0, 3 )
-        , ( 0, 4 )
-        , ( 0, 5 )
-        , ( 0, 6 )
-        , ( 0, 7 )
-        , ( 0, 8 )
+        edges
 
-        --
-        , ( 3, 9 )
-        , ( 3, 10 )
-        , ( 3, 11 )
-        ]
+
+graphEdges : App -> Dict String Int -> List ( Int, Int )
+graphEdges appRoot appIds =
+    let
+        log =
+            Debug.log "appIds" appIds
+    in
+    case appRoot.children of
+        Apps apps ->
+            (apps
+                |> List.map (\c -> c.name)
+                |> List.map (\c -> ( appRoot.name, c ))
+                |> List.map
+                    (\t ->
+                        ( Dict.get (Tuple.first t) appIds
+                            |> Maybe.withDefault -1
+                        , Dict.get (Tuple.second t) appIds
+                            |> Maybe.withDefault -1
+                        )
+                    )
+            )
+                ++ (List.map (\x -> graphEdges x appIds) apps
+                        |> List.concat
+                   )

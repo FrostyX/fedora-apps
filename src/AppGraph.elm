@@ -110,7 +110,7 @@ initSimulation graph width height =
                 |> List.map link
                 |> List.map
                     (\x ->
-                        { distance = 150
+                        { distance = 250
                         , source = Tuple.first x
                         , strength = Just 2
                         , target = Tuple.second x
@@ -122,14 +122,14 @@ initSimulation graph width height =
         -- is `-30`, but since we are drawing fairly large circles for each
         -- node, we need to increase the repulsion by decreasing the strength to
         -- `-150`.
-        , Force.manyBodyStrength -150 <| List.map .id <| Graph.nodes graph
-        , Force.collision 50 <| List.map .id <| Graph.nodes graph
+        , Force.manyBodyStrength -1000 <| List.map .id <| Graph.nodes graph
+        , Force.collision 5 <| List.map .id <| Graph.nodes graph
 
         -- Defines the force that pulls nodes to a center. We set the center
         -- coordinates to the center of the svg viewport.
         , Force.center (width / 2) (height / 2)
         ]
-        |> Force.iterations 100
+        |> Force.iterations 400
 
 
 {-| Initializes the zoom and sets a minimum and maximum zoom level.
