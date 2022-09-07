@@ -56,6 +56,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
+        , node "link" [ rel "icon", href "/favicon.ico" ] []
         , node "link" [ rel "stylesheet", href "/css/style.css" ] []
         , viewMenu
         , div [ class "container content" ]
