@@ -20,6 +20,11 @@ h3 {
     font-size: 14pt;
 }
 
+.card-deck a {
+    text-decoration: none;
+    color: #363636;
+}
+
 .card {
     width: 198px;
     min-height: 150px;

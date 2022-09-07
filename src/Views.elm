@@ -192,14 +192,16 @@ viewApp model app =
     else
         Popover.config
             (div [ class "mb-4" ]
-                [ Card.config
-                    [ Card.attrs <| Popover.onHover popoverState (PopoverMsg app)
-                    ]
-                    |> Card.imgTop [ src (appIcon app) ] []
-                    |> Card.block []
-                        [ Block.titleH3 [] [ text app.name ]
+                [ a [ href app.data.url ]
+                    [ Card.config
+                        [ Card.attrs <| Popover.onHover popoverState (PopoverMsg app)
                         ]
-                    |> Card.view
+                        |> Card.imgTop [ src (appIcon app) ] []
+                        |> Card.block []
+                            [ Block.titleH3 [] [ text app.name ]
+                            ]
+                        |> Card.view
+                    ]
                 ]
             )
             |> Popover.top
