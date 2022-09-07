@@ -73,7 +73,7 @@ graphInit data =
         graph =
             Graph.mapContexts initNode data
     in
-    ( Init graph, getElementPosition )
+    ( Init graph, Cmd.none )
 
 
 {-| The graph data we defined at the end of the module has the type
