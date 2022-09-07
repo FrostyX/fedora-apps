@@ -12,7 +12,7 @@ import Views exposing (view)
 
 
 main =
-    Browser.element
+    Browser.document
         { init = init
         , update = update
         , view = view

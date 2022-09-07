@@ -7,6 +7,7 @@ import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 import Bootstrap.Grid as Grid
 import Bootstrap.Popover as Popover
+import Browser exposing (Document)
 import Browser.Dom
 import Color
 import Dict exposing (Dict)
@@ -52,19 +53,27 @@ import Models exposing (..)
 import Set exposing (Set)
 
 
-view : Model -> Html Msg
+
+-- view : Model -> Html Msg
+
+
+view : Model -> Browser.Document Msg
 view model =
-    div []
-        [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
-        , node "link" [ rel "icon", href "/favicon.ico" ] []
-        , node "link" [ rel "stylesheet", href "/css/style.css" ] []
-        , viewMenu
-        , div [ class "container content" ]
-            [ case model.apps of
-                Apps apps ->
-                    div [] (apps |> List.map (viewAllApps model))
+    { title = "Fedora Apps"
+    , body =
+        [ div []
+            [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
+            , node "link" [ rel "icon", href "/favicon.ico" ] []
+            , node "link" [ rel "stylesheet", href "/css/style.css" ] []
+            , viewMenu
+            , div [ class "container content" ]
+                [ case model.apps of
+                    Apps apps ->
+                        div [] (apps |> List.map (viewAllApps model))
+                ]
             ]
         ]
+    }
 
 
 viewMenu : Html Msg
