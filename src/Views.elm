@@ -117,8 +117,12 @@ viewGraph graphReady =
 viewAllApps : Model -> App -> Html Msg
 viewAllApps model app =
     div []
-        [ h1 [] [ text app.name ]
-        , p [] (viewAppDescription app)
+        [ div [ class "row justify-content-md-center", id "header" ]
+            [ div [ class "col-8" ]
+                [ h1 [] [ text app.name ]
+                , p [] (viewAppDescription app)
+                ]
+            ]
         , viewGraph model.graphReady
         , case app.children of
             Apps apps ->

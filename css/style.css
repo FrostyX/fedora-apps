@@ -1,3 +1,16 @@
+h1 {
+    margin-top: 10px;
+    color: #51a2da;
+    text-align: center;
+}
+
+#header {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 16pt;
+}
+
 h2 {
     color: #51a2da;
     text-align: center;
@@ -81,7 +94,7 @@ h4.popover-header img {
 
 #graph {
     height: 500px;
-    margin: 50px auto;
+    margin-bottom: 50px;
     border: 2px solid #e9ecef;
 }
 
