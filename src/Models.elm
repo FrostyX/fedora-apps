@@ -27,7 +27,6 @@ type Msg
       -- Graph
     | ReceiveElementPosition (Result Dom.Error Dom.Element)
     | Resize Int Int
-    | Tick Time.Posix
     | ZoomMsg OnZoom
 
 

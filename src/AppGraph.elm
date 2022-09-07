@@ -181,7 +181,8 @@ graphSubscriptions graphReady =
                     Sub.none
 
                   else
-                    Events.onAnimationFrame Tick
+                    -- Events.onAnimationFrame Tick
+                    Sub.none
                 ]
     in
     Sub.batch
@@ -219,27 +220,23 @@ graphUpdate msg graphReady =
             Debug.log "Update" msg
     in
     case ( msg, graphReady ) of
-        ( Tick _, Ready state ) ->
-            handleTick state
-
-        ( Tick _, Init _ ) ->
-            ( graphReady, Cmd.none )
-
         ( ReceiveElementPosition (Ok { element }), Init graph ) ->
             -- When we get the svg element position and dimensions, we are
             -- ready to initialize the simulation and the zoom, but we cannot
             -- show the graph yet. If we did, we would see a noticable jump.
             ( Ready
-                { element = element
-                , graph = graph
-                , showGraph = False
-                , simulation =
-                    initSimulation
-                        graph
-                        element.width
-                        element.height
-                , zoom = initZoom element
-                }
+                (tick 200
+                    { element = element
+                    , graph = graph
+                    , showGraph = False
+                    , simulation =
+                        initSimulation
+                            graph
+                            element.width
+                            element.height
+                    , zoom = initZoom element
+                    }
+                )
             , Cmd.none
             )
 
@@ -279,22 +276,26 @@ graphUpdate msg graphReady =
             ( graphReady, Cmd.none )
 
 
-handleTick : ReadyState -> ( GraphReady, Cmd Msg )
-handleTick state =
+tick : Int -> ReadyState -> ReadyState
+tick num state =
     let
         ( newSimulation, list ) =
             Force.tick state.simulation <|
                 List.map .label <|
                     Graph.nodes state.graph
+
+        newState =
+            { state
+                | graph = updateGraphWithList state.graph list
+                , showGraph = True
+                , simulation = newSimulation
+            }
     in
-    ( Ready
-        { state
-            | graph = updateGraphWithList state.graph list
-            , showGraph = True
-            , simulation = newSimulation
-        }
-    , Cmd.none
-    )
+    if num == 0 then
+        newState
+
+    else
+        tick (num - 1) newState
 
 
 updateNode :
