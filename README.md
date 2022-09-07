@@ -1,9 +1,9 @@
 # Fedora Apps (unofficial)
 
-https://fedora-apps.netlify.app/
+https://fedora-apps.netlify.app
 
 I am trying to rewrite the Fedora Apps page
-https://apps.fedoraproject.org in [Elm][elm]
+https://apps.fedoraproject.org in [Elm][elm].
 
 Will it ever be deployed? We shall see.
 
@@ -32,9 +32,9 @@ This could be such a place.
 
 This page is not (yet) deployed within Fedora infrastructure nor it is
 maintained by the Fedora Infrastructure team. An unofficial demo is
-deployed via [netlify.app][netlify-app]:
+deployed via [netlify.app][netlify-app].
 
-https://fedora-apps.netlify.app/
+https://fedora-apps.netlify.app
 
 
 ## Disabled Javascript
