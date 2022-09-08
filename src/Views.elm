@@ -98,7 +98,7 @@ viewMenu =
                             []
                         ]
                     , viewMenuItem "New App"
-                        "#"
+                        "https://github.com/FrostyX/fedora-apps/blob/main/README.md#missing-application"
                     , viewMenuItem "Source code"
                         "https://github.com/frostyx/fedora-apps/"
                     ]
